@@ -1,0 +1,96 @@
+import time
+class CloudService: 
+    def __init__(self, service_id, name, status="Healthy"):
+        self.service_id = service_id
+        self.name = name
+        self.status = status
+        self.health_details = []
+    def update_status(self, new_status ,details =""):
+        self.status = new_status
+        log_entry = {
+            "status": new_status,
+            "details": details,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+        }
+        self.health_details.append(log_entry)
+        print(f"service {self.service_id} status updated to '{new_status}' with details: {details}.")
+    def display_details(self):
+        print(f"Service ID: {self.service_id}")
+        print(f"Name: {self.name}")
+        print(f"Status: {self.status}")
+        print("Health History:")
+        for detail in self.health_details:
+            print(f"- {detail['timestamp']}: {detail['status']} - {detail['details']}")
+class DashboardManager:
+    def __init__(self):
+        self.services = {}
+    def add_service(self, service_id, name, status="Healthy"):
+        """Adds a new service to the dashboard."""
+        if service_id in self.services:
+            print(f"Error:Service with ID {service_id} already exists.")
+        else:
+            self.services[service_id] = CloudService(service_id, name, status)
+            print(f"Service '{name}' with ID {service_id} added successfully with status '{status}'.")
+    def update_service_status(self, service_id, new_status, details=""):
+        service = self.services.get(service_id)
+        if service:
+            service.update_status(new_status, details)
+            print(f"Service {service_id} status updated to {new_status}.")
+        else:
+            print(f"Error:No service found with ID {service_id}.")
+    def delete_service(self, service_id):
+        """Deletes a service from the dashboard."""
+        if service_id in self.services:
+            del self.services[service_id]
+            print(f"Service with ID {service_id} has been deleted.")
+        else:
+            print(f"Error:No service found with ID {service_id}.")
+    def display_service_status(self, service_id):
+        service = self.services.get(service_id)
+        if service:
+            service.display_details()
+        else:
+            print(f"Error:No service found with ID {service_id}.")
+    def display_all_services(self):
+        if not self.services:
+            print("No services available in the dashboard.")
+        else:
+            for service in self.services.values():
+                service.display_details()
+                print("-----------------------------------")
+def main():
+    dashboard_manager = DashboardManager()
+    while True:
+        print("\n--- Cloud Service Health Dashboard ---")
+        print("1. Add a new service")
+        print("2. Update service health status")
+        print("3. Display status of a specific service")
+        print("4. Display all services")
+        print("5. Delete a service")
+        print("6. Quit")
+        choice = input("Enter your choice (1-6): ")
+        if choice == "1":
+            service_id = input("Enter Service ID: ")
+            name = input("Enter Service Name: ")
+            status = input("Enter Initial Status (Healthy, Degraded, Down): ")
+            dashboard_manager.add_service(service_id, name, status)
+        elif choice == "2":
+            service_id = input("Enter Service ID to update: ")
+            new_status = input("Enter New Status (Healthy, Degraded, Down): ")
+            details = input("Enter any additional details: ")
+            dashboard_manager.update_service_status(service_id, new_status, details)
+        elif choice == "3":
+            service_id = input("Enter Service ID to display: ")
+            dashboard_manager.display_service_status(service_id)
+        elif choice == "4":
+            dashboard_manager.display_all_services()
+        elif choice == "5":
+            service_id = input("Enter Service ID to delete: ")
+            dashboard_manager.delete_service(service_id)
+        elif choice == "6":
+            print("Exiting the Cloud Service Health Dashboard. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please select a number between 1 and 6.")
+if __name__ == '__main__':
+    main()
